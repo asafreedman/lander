@@ -21,7 +21,6 @@ void setPixel(int r, int c, u16 color) {
  *  @param color of the rectangle
  */
 void drawRect(int r, int c, int width, int height, volatile u16 color) {
-    
     for (int row = r; row <= height+r; row++) {
         DMA[3].src = &color;
         DMA[3].dst = (VIDBUFFER + OFFSET(row,c));
@@ -45,4 +44,28 @@ void drawHollowRect(int r, int c, int width, int height, u16 color) {
         *(VIDBUFFER + OFFSET(r, l)) = color;
         *(VIDBUFFER + OFFSET(r+height, l)) = color;
     }
+}
+/**
+ * Draws an the image at the coordinates specified and the width and height
+ *  @param r row on which to start the rectangle
+ *  @param c column on which to srt the rectangle
+ *  @param width of the rectangle
+ *  @param height of the rectangle
+ *  @param image the image to be drawn
+ */
+void drawImage3(int r, int c, int width, int height, const u16* image) {
+    int s = 0;
+    for (int row = r; row < height + r; row++) { 
+        DMA[3].src = image + ((s) * width);
+        DMA[3].dst = (VIDBUFFER + OFFSET(row,c));
+        DMA[3].cnt = width | DMA_DESTINATION_INCREMENT | DMA_ON | DMA_NOW;
+        s++;
+    }
+}
+/**
+ * Waits for the next frame
+ */
+void waitForVBlank() {
+    while (REG_VCOUNT < 160);
+    while (REG_VCOUNT > 160);
 }

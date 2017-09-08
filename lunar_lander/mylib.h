@@ -35,6 +35,8 @@ void drawHollowRect(int r, int c, int width, int height, u16 color);
 void drawImage3(int r, int c, int width, int height, const u16* image);
 void waitForVBlank();
 
+volatile u16 black = 0;
+
 // GLOBAL VARIABLES
 extern unsigned short* VIDBUFFER;
 
