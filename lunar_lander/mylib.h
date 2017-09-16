@@ -17,12 +17,14 @@
 #define REG_KEYINPUT *((volatile u16*)0x04000130)
 #define KEY_DOWN(key) (~(REG_KEYINPUT) & (key))
 #define REG_VCOUNT *(volatile u16*)0x04000006
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 160
 
 // TYPEDEFS
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
-typedef struct {
+typedef struct EDGE {
     int x1;
     int y1;
     int goal;
@@ -33,11 +35,20 @@ void setPixel(int r, int c, u16 color);
 void drawRect(int r, int c, int width, int height, volatile u16 color);
 void drawHollowRect(int r, int c, int width, int height, u16 color);
 void drawImage3(int r, int c, int width, int height, const u16* image);
+/**
+ * Waits for the next cycle to start drawing
+ */
 void waitForVBlank();
-
-volatile u16 black = 0;
+/**
+ * Returns the given value if the key was pressed and released.
+ * @param int key The key to test for
+ * @param int return value The value to return
+ */
+int testForKey(int key, int retVal);
 
 // GLOBAL VARIABLES
+extern volatile u16 black;
+extern volatile u16 red;
 extern unsigned short* VIDBUFFER;
 
 // DMA

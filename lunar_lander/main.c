@@ -1,3 +1,4 @@
+#include "mylib.h"
 #include "game_state.h"
 // Asa Freedman
 
@@ -7,10 +8,7 @@ int main() {
 
     return 0;
 }
-    
-// drawRect(0,0,240,160,black); // Cover splash
-// // Draw Terrain
-// drawImage3(120,0,240,40,terrain);
+
 // // Draw Fuel Gauge
 
 // // Draw Lives
@@ -178,18 +176,6 @@ int main() {
 //     if (checkx < 0x0000 || (checkx+width) > 240) {
 //         dirx = -dirx;
 //     }
-//     if ((edges[checkx].y1 == ((checky)+20)) || (edges[checkx + width].y1 == ((checky)+20))) {
-//         if (edges[checkx].goal && edges[checkx+width].goal) { // Goal Check
-//             // Display win screen
-//             if (speed > -75) {
-//                 if (edges[checkx].y1 <= (checky+20) && edges[checkx+width].y1 <= checky+20)
-//                 landedsafely = 1;
-//             } else {
-//                 collide = 1;
-//             }   
-//         }
-//         crashed = 1;
-//     } 
 //     if (reset) { // Takes care of reset terrain glitch
 //         drawImage3(120,0,240,40,terrain);
 //         for (int a = 0; a < lives; a++) {
@@ -212,10 +198,5 @@ int main() {
 //     drawRect(141,141,50+1,10,black);
 //     drawRect(141,141,(10*(fuel>>8))+1,10,red);
 //     // Draw ship here
-    
-    
-//     drawImage3((checky),(checkx),width, height, image);
-//     }
-//     return 0;
 // }
 

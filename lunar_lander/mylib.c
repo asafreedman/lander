@@ -3,6 +3,9 @@
 // Asa Freedman
 unsigned short* VIDBUFFER = (u16 *)0x06000000;
 
+volatile u16 black = 0;
+volatile u16 red = (COLOR(31, 0, 0));
+
 /**
  *  Sets a pixel to a given color
  *  @param row on which to color the pixel
@@ -68,4 +71,14 @@ void drawImage3(int r, int c, int width, int height, const u16* image) {
 void waitForVBlank() {
     while (REG_VCOUNT < 160);
     while (REG_VCOUNT > 160);
+}
+
+int testForKey(int key, int retVal) {
+    if (KEY_DOWN(key)) {
+        while (KEY_DOWN(key)) {}
+
+        return retVal ? retVal : 1;
+    }
+
+    return 0;
 }

@@ -11,12 +11,12 @@ PROGNAME =main
 
 # The object files you want to compile into your program
 # This should be a space (SPACE!) separated list of .o files
-OFILES =main.o mylib.o game_state.o images/splash.o images/gameover.o images/pause.o images/rocket.o images/rocketfire.o images/terrain.o images/life.o images/safelanding.o images/crash.o images/collision.o
+OFILES =main.o mylib.o statelib.o game_state.o game_state_init.o game_state_play.o game_state_gameover.o images/splash.o images/gameover.o images/pause.o images/rocket.o images/rocketfire.o images/terrain.o images/life.o images/safelanding.o images/crash.o images/collision.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES =mylib.h game_state.h images/splash.h images/gameover.h images/pause.h images/rocket.h images/rocketfire.h images/terrain.h images/life.h images/safelanding.h images/crash.h images/collision.h
+HFILES =mylib.h statelib.h game_state.h game_state_init.h game_state_play.h game_state_gameover.h images/splash.h images/gameover.h images/pause.h images/rocket.h images/rocketfire.h images/terrain.h images/life.h images/safelanding.h images/crash.h images/collision.h
 
 ################################################################################
 # These are various settings used to make the GBA toolchain work
