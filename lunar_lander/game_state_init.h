@@ -1,0 +1,1 @@
+int initState(void);

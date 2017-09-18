@@ -24,10 +24,11 @@ void setPixel(int r, int c, u16 color) {
  *  @param color of the rectangle
  */
 void drawRect(int r, int c, int width, int height, volatile u16 color) {
+    DMA[3].src = &color;
+    
     for (int row = r; row <= height+r; row++) {
-        DMA[3].src = &color;
-        DMA[3].dst = (VIDBUFFER + OFFSET(row,c));
         DMA[3].cnt = width | DMA_SOURCE_FIXED | DMA_NOW | DMA_ON;
+        DMA[3].dst = (VIDBUFFER + OFFSET(row, c));
     }
 }
 /**
@@ -39,13 +40,16 @@ void drawRect(int r, int c, int width, int height, volatile u16 color) {
  *  @param color of the edges of the rectangle
  */
 void drawHollowRect(int r, int c, int width, int height, u16 color) {
+    int cW = c + width;
+    int rH = r + height;
+
     for (int k = r; k <= height + r; k++) {
         *(VIDBUFFER + OFFSET(k, c)) = color;
-        *(VIDBUFFER + OFFSET(k, c+width)) = color;
+        *(VIDBUFFER + OFFSET(k, cW)) = color;
     }
     for (int l = c; l <= width + c; l++) {
         *(VIDBUFFER + OFFSET(r, l)) = color;
-        *(VIDBUFFER + OFFSET(r+height, l)) = color;
+        *(VIDBUFFER + OFFSET(rH, l)) = color;
     }
 }
 /**
@@ -57,12 +61,10 @@ void drawHollowRect(int r, int c, int width, int height, u16 color) {
  *  @param image the image to be drawn
  */
 void drawImage3(int r, int c, int width, int height, const u16* image) {
-    int s = 0;
-    for (int row = r; row < height + r; row++) { 
-        DMA[3].src = image + ((s) * width);
-        DMA[3].dst = (VIDBUFFER + OFFSET(row,c));
+    for (int row = r, s = 0; row < height + r; row++) { 
+        DMA[3].src = image + ((s++) * width);
+        DMA[3].dst = (VIDBUFFER + OFFSET(row, c));
         DMA[3].cnt = width | DMA_DESTINATION_INCREMENT | DMA_ON | DMA_NOW;
-        s++;
     }
 }
 /**
