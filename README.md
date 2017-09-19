@@ -2,25 +2,41 @@ A poor mans Lunar Lander...
 
 It's playable with the TONC gameboy emulator but the version I used had a 
 requirement of Ubuntu 12.x as APT in newer versions didn't have the right 
-libraries available.
+libraries easily available.
 
 It has been a while since I wrote this but it uses MODE3.  This gives each 
 pixel the full space for most of the colors I would need.  I think this choice 
 was purely due to expediency.  If I had the knowledge fresher in my head I 
 would have switched to a different mode that allowed page flipping.  I 
 think this would help with at least one of the redraws so I that could avoid 
-the slight bar of tearing that occurs as a result.
+the slight bar of tearing that occurs as a result.  And it might be fun to 
+utilize more of the things that the gameboy provides with layering and such.
 
 There are a few magic numbers in the draw functions but I believe they're 
 mostly harmless.
 
 ## The Game
 
+### Controls
+
+```
 Start = ENTER
+
 Up, Down, Left, Right = ARROW KEYS
+```
 
 The idea is to _safely_ land on the orange/golden platforms.  Where safely 
 means somewhat slower that max velocity.
+
+## Build
+ 
+Change directory to `lunar_lander`
+
+```bash
+make vba
+```
+
+Does not work using the `make wxvba` flag.  Had no previously tested it...
 
 ## State machine
 
