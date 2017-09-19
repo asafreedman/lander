@@ -6,16 +6,17 @@ It's playable with the TONC gameboy emulator but the version I used had a
 requirement of Ubuntu 12.x as APT in newer versions didn't have the right 
 libraries easily available.
 
-It has been a while since I wrote this but it uses MODE3.  This gives each 
-pixel the full space for most of the colors I would need.  I think this choice 
-was purely due to expediency.  If I had the knowledge fresher in my head I 
-would have switched to a different mode that allowed page flipping.  I 
+It has been a while since I wrote this game.  It uses video mode 3 giving more 
+space for color use.  I think this choice was originally made due to expediency
+or other course load.  If I had the knowledge fresher in my head I 
+would have switched to a different mode that allowed page flipping which I 
 think this would help with at least one of the redraws so I that could avoid 
 the slight bar of tearing that occurs as a result.  And it might be fun to 
-utilize more of the things that the gameboy provides with layering and such.
+utilize more of the things that the gameboy provides with layering and sprites.
 
 Drawing the surface directly on the board, though, allowed me to more easily do 
-simple collision detection storing it as an array of Edge structs.  The colors 
+simple collision detection storing it as an array of Edge structs that I could 
+reference based on the bottom left and right corners of the ship.  The colors 
 provide goal markers to determine if the ship is in the right place on impact.
 
 There are a few magic numbers in the draw functions but I believe they're 
