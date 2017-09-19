@@ -1,15 +1,17 @@
-#include "game_state_init.h"
 #include "mylib.h"
+#include "statelib.h"
+#include "game_state_init.h"
 #include "images/splash.h"
 
-int initState(void) {
-    drawImage3(0, 0, 240, 160, splash);
+int init_state(void) 
+{
+    draw_image_3(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, splash);
 
     if (KEY_DOWN(START)) {
         while(KEY_DOWN(START)) {}
 
-        return 1;
+        return GAME_STATE_PLAY;
     }
 
-    return 0;
+    return GAME_STATE_LOOP;
 }

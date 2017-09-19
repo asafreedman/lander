@@ -1,10 +1,11 @@
 #include "statelib.h"
 
-State generateState(ActionHandler handler, State **transitions) {
-    State newState = {
+State generate_state(ActionHandler handler, State **transitions) 
+{
+    State new_state = {
         .action = handler,
         .transitions = transitions
     };
 
-    return newState;
+    return new_state;
 }

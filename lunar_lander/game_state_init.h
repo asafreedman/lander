@@ -1,1 +1,1 @@
-int initState(void);
+int init_state(void);

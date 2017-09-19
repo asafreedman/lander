@@ -4,7 +4,7 @@
 #define REG_DISPCNT *((volatile u16*)0x04000000)
 #define MODE3 (3)
 #define BG2_ENABLE (1<<10)
-#define COLOR(r,g,b) ((r) | (g)<<5 | (b)<<10)
+#define COLOR(r, g, b) ((r) | ((g) << 5) | ((b) << 10))
 #define OFFSET(r,c) (((r)*(240))+(c))
 #define KEY_A (0x0001)
 #define KEY_B (0x0002)
@@ -32,23 +32,25 @@ typedef struct EDGE {
 
 // FUNCTION PROTOTYPES
 void setPixel(int r, int c, u16 color);
-void drawRect(int r, int c, int width, int height, volatile u16 color);
-void drawHollowRect(int r, int c, int width, int height, u16 color);
-void drawImage3(int r, int c, int width, int height, const u16* image);
+void draw_rect(int r, int c, int width, int height, volatile u16 color);
+void draw_hollow_rect(int r, int c, int width, int height, u16 color);
+void draw_image_3(int r, int c, int width, int height, const u16* image);
 /**
  * Waits for the next cycle to start drawing
  */
-void waitForVBlank();
+void wait_for_v_blank();
 /**
  * Returns the given value if the key was pressed and released.
  * @param int key The key to test for
  * @param int return value The value to return
  */
-int testForKey(int key, int retVal);
+int test_for_key(int key, int retVal);
 
 // GLOBAL VARIABLES
-extern volatile u16 black;
-extern volatile u16 red;
+extern const u16 black;
+extern const u16 red;
+extern const u16 orange;
+extern const u16 white;
 extern unsigned short* VIDBUFFER;
 
 // DMA

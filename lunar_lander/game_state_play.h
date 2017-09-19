@@ -1,1 +1,1 @@
-int playState(void);
+int play_state(void);

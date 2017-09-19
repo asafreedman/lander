@@ -16,46 +16,50 @@
 // Play
 #define CRASHED_TRANSITION_STATES 1
 #define LANDED_TRANSITION_STATES 1
-
-void buildTerrainAndAssignEdges();
-void drawTerrain();
-void checkForCollisions();
-int translateCrashedReasonToState();
-void resetShip();
-int didReset();
-void moveShip();
+// Decreasing my stock of magic numbers
+#define STARTING_PLAYER_LIVES 3
+#define MAX_DOWNWARD_VELOCITY_TO_LAND -75
+#define TERRAIN_DRAW_START_Y 120
+#define BANNER_DRAW_START_Y 10
+// In order of appearance
+void build_terrain_and_assign_edges();
+void draw_terrain();
+void check_for_collision();
+int translate_crashed_reason_to_state();
+void reset_ship();
+int did_reset();
+void move_ship();
 // Drawing
 void redraw();
-void drawShip();
-void drawFuel();
-void drawLives();
+void draw_ship();
+void draw_fuel();
+void draw_lives();
 // States
-int runState();
-int crashedState();
-int landedState();
-int clearState();
+int run_state();
+int crashed_state();
+int landed_state();
+int clear_state();
 
 typedef enum CrashedReason {
     IMPACT_GROUND,
     IMPACT_GOAL,
     SAFE_LANDING
 } CrashedReason;
-
 /**
  * Represents a ship
  */
 typedef struct Ship {
-    int locX;
-    int locY;
-    int oldLocX;
-    int oldLocY;
-    int dirX;
+    int loc_x;
+    int loc_y;
+    int old_loc_x;
+    int old_loc_y;
+    int dir_x;
     int speed;
     int height;
-    int oldHeight;
+    int old_height;
     int width;
-    char crashed;
     volatile int fuel;
+    char crashed;
     CrashedReason reason;
 } Ship;
 /**
@@ -75,75 +79,77 @@ Player player;
 /*
 Not sure how to make this a part of the ship
 */
-const u16 *currentShipImage;
-const u16 *oldShipImage;
+const u16 *current_ship_image;
+const u16 *old_ship_image;
 /**
  * Controls the playing state of the game.  There are sub states to this one 
  * but this essentially resets the game to the beginning.
  */
-int playState() {
-    State inGame;
+int play_state() 
+{
+    State in_game;
     State crashed;
     State landed;
-    State redraw;
-    int exitStateIndex;
+    State clear;
+    int exit_state_index;
     
-    player.lives = 3;
+    player.lives = STARTING_PLAYER_LIVES;
     player.ship = ship;
 
-    State *inGameTransitions[] = { &crashed, &landed };
-    State *crashedTransitions[] = { &redraw };
-    State *landedTransitions[] = { &redraw };
-    State *redrawTransitions[] = { &inGame };
+    State *in_game_transitions[] = { &crashed, &landed };
+    State *crashed_transitions[] = { &clear };
+    State *landed_transitions[] = { &clear };
+    State *clear_transitions[] = { &in_game };
     
-    inGame = generateState(&runState, inGameTransitions);
-    crashed = generateState(&crashedState, crashedTransitions);
-    landed = generateState(&landedState, landedTransitions);
-    redraw = generateState(&clearState, redrawTransitions);
+    in_game = generate_state(&run_state, in_game_transitions);
+    crashed = generate_state(&crashed_state, crashed_transitions);
+    landed = generate_state(&landed_state, landed_transitions);
+    clear = generate_state(&clear_state, clear_transitions);
     
-    State currentState = inGame;
-    ActionHandler currentAction = inGame.action;
+    State current_state = in_game;
+    ActionHandler current_action = in_game.action;
     
-    buildTerrainAndAssignEdges();
-    resetShip();
-    drawLives();
+    build_terrain_and_assign_edges();
+    reset_ship();
+    draw_lives();
     
     while (player.lives) {
         
         // Reset button pressed
-        if (didReset()) {
+        if (did_reset()) {
             // Reset
-            return 1;
+            return GAME_STATE_PLAY;
         }
         
-        exitStateIndex = currentAction();
+        exit_state_index = current_action();
 
-        if (!exitStateIndex) {
+        if (!exit_state_index) {
             continue;
         }
 
-        resetShip();
+        reset_ship();
 
-        currentState = *(currentState.transitions[exitStateIndex - 1]);
-        currentAction = currentState.action;
+        current_state = *(current_state.transitions[exit_state_index - 1]);
+        current_action = current_state.action;
 
     }
     // Gameover
-    return 2;
+    return GAME_STATE_GAMEOVER;
 }
 
 /**
  * Builds the traces for the terrain.  Collision detection will be based 
- * where the white and gold are rather however else it might be done.
+ * where the white and orange are rather however else it might be done.
  */
-void buildTerrainAndAssignEdges() {
-    drawTerrain();
+void build_terrain_and_assign_edges() 
+{
+    draw_terrain();
 
-    for (int r = 0; r < 40; r++) {
-        for (int c = 0; c < 240; c++) {
-            int terrainColor = terrain[r * 240 + c];
+    for (int r = 0; r < TERRAIN_HEIGHT; r++) {
+        for (int c = 0; c < SCREEN_WIDTH; c++) {
+            int terrain_color = terrain[r * SCREEN_WIDTH + c];
             // Only if this terrain has color
-            if (terrainColor != 0x7FFF && terrainColor != 0x019C) {
+            if (terrain_color == black) {
                 continue;
             }
             // Goal sits above other edges, don't overwrite it if it's marked
@@ -152,8 +158,8 @@ void buildTerrainAndAssignEdges() {
             }
 
             edges[c].x1 = c;
-            edges[c].y1 = r + 120;
-            edges[c].goal = terrainColor == 0x019C ? 1 : 0;
+            edges[c].y1 = r + TERRAIN_DRAW_START_Y;
+            edges[c].goal = terrain_color == orange ? 1 : 0;
         }
     }
 }
@@ -161,27 +167,36 @@ void buildTerrainAndAssignEdges() {
  * Draws the image of the terrain.  The terrain is only 40 pixels in height 
  * and is only drawn at the bottom
  */
-void drawTerrain() {
+void draw_terrain() 
+{
     // Draw Terrain
-    drawImage3(120, 0, SCREEN_WIDTH, 40, terrain);
+    draw_image_3(
+        TERRAIN_DRAW_START_Y, 
+        0, 
+        SCREEN_WIDTH, 
+        TERRAIN_HEIGHT, 
+        terrain);
 }
 
-void checkForCollisions() {
-    int checkX = ship.locX >> 8;
-    int checkY = ship.locY >> 8;
+void check_for_collision() 
+{
+    int checkX = ship.loc_x >> 8;
+    int checkY = ship.loc_y >> 8;
     int width = ship.width;
 
-    EDGE edgeX = edges[checkX];
-    EDGE edgeWidth = edges[checkX + width];
+    EDGE edge_x = edges[checkX];
+    EDGE edge_width = edges[checkX + width];
 
-    if ((edgeX.y1 == ((checkY) + 20)) || (edgeWidth.y1 == ((checkY) + 20))) {
+    if ((edge_x.y1 == ((checkY) + 20)) || (edge_width.y1 == ((checkY) + 20))) {
         ship.crashed = 1;
         ship.reason = IMPACT_GROUND;
-        if (edgeX.goal && edgeWidth.goal) { // Goal Check
+        if (edge_x.goal && edge_width.goal) { // Goal Check
             // Display win screen
-            if (ship.speed > -75) {
-                if (edgeX.y1 <= (checkY + 20) && edgeWidth.y1 <= checkY + 20)
-                ship.reason = SAFE_LANDING;
+            if (ship.speed > MAX_DOWNWARD_VELOCITY_TO_LAND) {
+                // In the case of two landing pads close to eachother
+                if (edge_x.y1 <= (checkY + 20) && edge_width.y1 <= checkY + 20) {
+                    ship.reason = SAFE_LANDING;
+                }
             } else {
                 ship.reason = IMPACT_GOAL;
             }   
@@ -189,17 +204,18 @@ void checkForCollisions() {
     }
 }
 
-int translateCrashedReasonToState() {
+int translate_crashed_reason_to_state() 
+{
     switch (ship.reason) {
         case IMPACT_GROUND:
         case IMPACT_GOAL:
-            return 1;
+            return PLAY_STATE_CRASHED;
             break;
         case SAFE_LANDING:
-            return 2;
+            return PLAY_STATE_LANDED;
             break;
         default:
-            return 0;
+            return PLAY_STATE_LOOP;
             break;
 
     }
@@ -207,10 +223,11 @@ int translateCrashedReasonToState() {
 /**
  * Sets the ships parameters back to new state
  */
-void resetShip() {
-    ship.locX = 0x0500;
-    ship.locY = 0x0F00;
-    ship.dirX = 0x40;
+void reset_ship() 
+{
+    ship.loc_x = 0x0500;
+    ship.loc_y = 0x0F00;
+    ship.dir_x = 0x40;
     ship.speed = 0;
     ship.height = 20;
     ship.width = 13;
@@ -220,26 +237,28 @@ void resetShip() {
 /**
  * Checks to see if select was pressed which should restart the game
  */
-int didReset() {
-    return testForKey(SELECT, 1);
+int did_reset() 
+{
+    return test_for_key(SELECT, 1);
 }
 /**
  * Changes the location parameters of the ship so that it 'moves'
  */
-void moveShip() {
+void move_ship() 
+{
     int speed = ship.speed;
     int fuel = ship.fuel;
-    int dirX = ship.dirX;
+    int dir_x = ship.dir_x;
     int height = ship.height;
 
-    ship.oldHeight = ship.height;
-    ship.oldLocX = ship.locX;
-    ship.oldLocY = ship.locY;
-    oldShipImage = currentShipImage;
+    ship.old_height = ship.height;
+    ship.old_loc_x = ship.loc_x;
+    ship.old_loc_y = ship.loc_y;
+    old_ship_image = current_ship_image;
 
     // Thrust
     if (KEY_DOWN(UP) && (fuel>0)) {
-        currentShipImage = rocketfire;
+        current_ship_image = rocketfire;
         height = 26;
         speed += 0x0001;
         fuel -= 0x0002;
@@ -247,7 +266,7 @@ void moveShip() {
             speed = 0x0100;
         }
     } else {
-        currentShipImage = rocket;
+        current_ship_image = rocket;
         height = 20;
         speed -= 0x0001;
         if (speed < -0x0090) {
@@ -257,118 +276,138 @@ void moveShip() {
     // Move Right
     if (KEY_DOWN(RIGHT) && fuel) {
         fuel -= 0x0001;
-        dirX += 0x0007;
-        if (dirX > 0x0050) {
-            dirX = 0x0050;
+        dir_x += 0x0007;
+        if (dir_x > 0x0050) {
+            dir_x = 0x0050;
         }
         
-    } else if (dirX > 0) {
-        dirX -= 0x0001;
-        if (dirX < 0) {
-            dirX = 0;
+    } else if (dir_x > 0) {
+        dir_x -= 0x0001;
+        if (dir_x < 0) {
+            dir_x = 0;
         }
     }
     // Move Left
     if (KEY_DOWN(LEFT) && fuel) {
         fuel -= 0x0001;
-        dirX -= 0x0007;
-        if (dirX <= -0x0050) {
-            dirX = -0x0050;
+        dir_x -= 0x0007;
+        if (dir_x <= -0x0050) {
+            dir_x = -0x0050;
         }
-    } else if (dirX < 0) {
-        dirX += 0x0001;
-        if (dirX > 0) {
-            dirX = 0;
+    } else if (dir_x < 0) {
+        dir_x += 0x0001;
+        if (dir_x > 0) {
+            dir_x = 0;
         }
     }
     
     ship.speed = speed;
     ship.fuel = fuel;
     ship.height = height;
-    ship.dirX = dirX;
-    ship.locX += dirX;
-    ship.locY -= speed;
+    ship.dir_x = dir_x;
+    ship.loc_x += dir_x;
+    ship.loc_y -= speed;
 }
 
-void redraw() {
-    waitForVBlank();
+void redraw() 
+{
+    wait_for_v_blank();
 
-    drawTerrain();
-    drawShip();
-    drawLives();
-    drawFuel();
+    draw_terrain();
+    draw_ship();
+    draw_lives();
+    draw_fuel();
 }
-
-void drawShip() {
-    drawRect(
-        (ship.oldLocY >> 8), 
-        (ship.oldLocX >> 8), 
+/**
+ * Draws the ship and a box over the old ships location... Shoudl have used 
+ * mode 2
+ */
+void draw_ship() 
+{
+    draw_rect(
+        (ship.old_loc_y >> 8), 
+        (ship.old_loc_x >> 8), 
         ship.width, 
-        ship.oldHeight, 
+        ship.old_height, 
         black);
 
-    drawImage3(
-        (ship.locY >> 8), 
-        (ship.locX >> 8), 
+    draw_image_3(
+        (ship.loc_y >> 8), 
+        (ship.loc_x >> 8), 
         ship.width, 
         ship.height, 
-        currentShipImage);
+        current_ship_image);
 }
-
-void drawLives() {
+/**
+ * Draw the player lives remaining 
+ */
+void draw_lives() 
+{
     for (int a = 0; a < player.lives; a++) {
-        drawImage3(140, (3 + (a) * 7), 7, 13, life);
+        draw_image_3(140, (3 + (a) * 7), 7, 13, life);
     }
 }
-
-void drawFuel() {
-    drawHollowRect(140, 140, 52, 12, COLOR(31, 31, 31));
-    drawRect(141, 141, 50 + 1, 10, black);
-    drawRect(141, 141, (10 * (ship.fuel >> 8)) + 1, 10, red);
+/**
+ * Draw the fuel gauge
+ */
+void draw_fuel() 
+{
+    draw_hollow_rect(140, 140, 52, 12, COLOR(31, 31, 31));
+    draw_rect(141, 141, 51, 10, black);
+    draw_rect(141, 141, (10 * (ship.fuel >> 8)) + 1, 10, red);
 }
 
-int runState() {
-    moveShip();
+int run_state() 
+{
+    move_ship();
     redraw();
     // See about returning the collision check.
-    checkForCollisions(ship, edges);
+    check_for_collision(ship, edges);
 
     if (!ship.crashed) {
-        return 0;
+        return PLAY_STATE_LOOP;
     }
 
     if (ship.reason != SAFE_LANDING) {
-        player.lives -= 1;
+        player.lives--;
     }
-
-    return translateCrashedReasonToState();
+    // I could return check_for_collision but I have other things to do after
+    return translate_crashed_reason_to_state();
 }
 /**
  * Draws the appropriate picture for a crash.  There is technically no reason 
  * to continuously redraw this state or the landed state but I didn't find it 
  * problem.  Would still want to wait on vblank
  */
-int crashedState() {
-    drawImage3(
-        10, 
+int crashed_state() 
+{
+    draw_image_3(
+        BANNER_DRAW_START_Y, 
         0, 
         SCREEN_WIDTH, 
-        50, 
+        COLLISION_HEIGHT, 
         (ship.reason == IMPACT_GOAL ? collision : crash));
 
-    return testForKey(START, 1);
+    return test_for_key(START, PLAY_STATE_CLEAR);
 }
 
-int landedState() {
-    drawImage3(10, 0, SCREEN_WIDTH, 50, safelanding);
+int landed_state() 
+{
+    draw_image_3(
+        BANNER_DRAW_START_Y, 
+        0, 
+        SCREEN_WIDTH, 
+        SAFELANDING_HEIGHT, 
+        safelanding);
 
-    return testForKey(START, 1);
+    return test_for_key(START, PLAY_STATE_CLEAR);
 }
 
-int clearState() {
-    drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, black);
+int clear_state() 
+{
+    draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, black);
     redraw();
 
-    return 1;
+    return PLAY_STATE_PLAY;
 }
 

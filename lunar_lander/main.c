@@ -3,7 +3,8 @@
 // Asa Freedman
 
 
-int main() {
+int main() 
+{
     init_game();
 
     return 0;
