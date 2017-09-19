@@ -52,7 +52,7 @@ typedef struct Ship {
     int height;
     int old_height;
     int width;
-    volatile int fuel;
+    int fuel;
     char crashed;
     CrashedReason reason;
 } Ship;
