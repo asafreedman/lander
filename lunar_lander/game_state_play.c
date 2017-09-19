@@ -190,13 +190,11 @@ void check_for_collision()
     if ((edge_x.y1 == ((checkY) + 20)) || (edge_width.y1 == ((checkY) + 20))) {
         ship.crashed = 1;
         ship.reason = IMPACT_GROUND;
-        if (edge_x.goal && edge_width.goal) { // Goal Check
+        // Within the bounds of a goal
+        if (edge_x.y1 <= (checkY + 20) && edge_width.y1 <= checkY + 20) {
             // Display win screen
             if (ship.speed > MAX_DOWNWARD_VELOCITY_TO_LAND) {
-                // In the case of two landing pads close to eachother
-                if (edge_x.y1 <= (checkY + 20) && edge_width.y1 <= checkY + 20) {
-                    ship.reason = SAFE_LANDING;
-                }
+                ship.reason = SAFE_LANDING;
             } else {
                 ship.reason = IMPACT_GOAL;
             }   
