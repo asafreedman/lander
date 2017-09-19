@@ -6,10 +6,6 @@
 #include "game_state_gameover.h"
 #include <stdlib.h>
 
-#define INIT_TRANSITION_STATES 1
-#define PLAY_TRANSITION_STATES 2
-#define GAMEOVER_TRANSITION_STATES 1
-
 void init_game() 
 {
     int exit_state_index;

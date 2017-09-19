@@ -10,12 +10,6 @@
 #include "images/safelanding.h"
 #include "images/crash.h"
 #include "images/collision.h"
-
-// Crashed
-#define PLAY_TRANSITION_STATES 2
-// Play
-#define CRASHED_TRANSITION_STATES 1
-#define LANDED_TRANSITION_STATES 1
 // Decreasing my stock of magic numbers
 #define STARTING_PLAYER_LIVES 3
 #define MAX_DOWNWARD_VELOCITY_TO_LAND -75
